@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <title>Home_ No airea</title>
+      <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center; /* 横方向の中央 */
+      align-items: center;     /* 縦方向の中央 */
+      background-color: #222;  /* 背景色（任意） */
+    }
+
+    canvas {
+      border: 2px solid #fff;
+    }
+  </style>
+
+  </head>
+  <body>
+    <canvas id="homeCanvas" width="600" height="400"></canvas>
+    <script>
+      const canvas = document.getElementById("homeCanvas");
+      const ctx = canvas.getContext("2d");
+
+      // 背景
+      ctx.fillStyle = "#222";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // タイトル
+      ctx.fillStyle = "#fff";
+      ctx.font = "40px Arial";
+      ctx.fillText("No airea", 220, 100);
+
+      // スタートボタン（四角）
+      ctx.fillStyle = "#00ccff";
+      ctx.fillRect(200, 175, 200, 50);
+      ctx.fillStyle = "#fff";
+      ctx.font = "24px Arial";
+      ctx.fillText("play", 275, 210);
+    
+      ctx.fillStyle = "#00ccff";
+      ctx.fillRect(200, 235, 200, 50);
+      ctx.fillStyle = "#fff";
+      ctx.font = "24px Arial";
+      ctx.fillText("set", 280, 270);
+    
+      ctx.fillStyle = "#00ccff";
+      ctx.fillRect(200, 295, 200, 50);
+      ctx.fillStyle = "#fff";
+      ctx.font = "24px Arial";
+      ctx.fillText("help", 275, 325)
+    // クリック判定
+      canvas.addEventListener("click", function(e) {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        // スタートボタン
+        if (x >= 200 && x <= 400 && y >= 175 && y <= 225) {
+          window.location.href = "Noairea_play.html"
+          // ゲーム画面に切り替える処理
+        }
+
+        // 設定ボタン
+        else if (x >= 200 && x <= 400 && y >= 235 && y <= 285) {
+          window.location.href = "Noairea_set.html"
+          // 設定画面に切り替える処理
+        }
+
+        // ヘルプボタン
+        else if (x >= 200 && x <= 400 && y >= 295 && y <= 345) {
+          alert("ヘルプ表示！");
+          // ヘルプ画面に切り替える処理
+        }
+      });
+    </script>
+  </body>
+</html>

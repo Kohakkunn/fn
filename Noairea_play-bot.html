@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <title>Play-bot_ No airea</title>
+      <style>
+        body {
+      margin: 0;
+      padding: 0;
+      background-color: #222;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    canvas {
+      max-width: 100%;
+      height: auto;
+      border: 2px solid #fff;
+    }
+
+    #inventory {
+      width: 90%;
+      max-width: 800px;
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #333;
+      color: #fff;
+      border-radius: 8px;
+    }
+
+    #inventoryList {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 0;
+      list-style: none;
+    }
+
+    #inventoryList li {
+      background-color: #444;
+      padding: 8px 12px;
+      border-radius: 4px;
+      flex: 1 1 auto;
+      min-width: 100px;
+      text-align: center;
+    }
+    </style>
+
+  </head>
+  <body>
+
+    <canvas id="homeCanvas" width="600" height="400"></canvas>
+
+    <div id="inventory">
+      <h3>your inventory</h3>
+      <ul id="inventoryList"></ul>
+    </div>
+
+    <script>
+      const canvas = document.getElementById("homeCanvas");
+      const ctx = canvas.getContext("2d");
+      let inventory = [];
+
+      // 背景
+      ctx.fillStyle = "#222";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      const savedImage = localStorage.getItem("savedImage");
+      /*　プレイヤー処理　*/
+      const player = {
+        x: 100,
+        y: 100,
+        width: 25,
+        height: 25,
+        speed: 5,
+        direction: null
+      };
+      
+      if (savedImage) {
+        const img = new Image();
+        img.onload = function () {
+          player.img = img;
+          drawPlayer(); // 初期描画
+        };
+        img.src = savedImage;
+      }
+
+
+      function drawPlayer() {
+        
+        if (player.img) {
+          ctx.drawImage(player.img, player.x, player.y, player.width, player.height);
+        } else {
+          // スキンがない場合は仮の四角で表示
+          ctx.fillStyle = "#00ff00";
+          ctx.fillRect(player.x, player.y, player.width, player.height);
+        }
+      }
+
+      document.addEventListener("keydown", (e) => {
+        let key = e.key.toUpperCase();
+        if (["W", "A", "S", "D"].includes(key)) {
+          player.direction = key; // ← 方向をセット
+        }
+      });
+      console.log(player.direction)
+
+      function movePlayer() {
+        switch(player.direction) {
+          case "W":
+            player.y -= player.speed;
+            break;
+          case "A":
+            player.x -= player.speed;
+            break;
+          case "S":
+            player.y += player.speed;
+            break;
+          case "D":
+            player.x += player.speed;
+            break;
+        }
+ 
+        // 範囲制限
+        player.x = Math.max(0, Math.min(574, player.x));
+        player.y = Math.max(0, Math.min(374, player.y));
+      }
+
+      /* プレイヤー処理ここまで */
+      /* ボット処理 */
+
+      const bot = {
+        x: 300,
+        y: 200,
+        width: 25,
+        height: 25,
+        speed: 5,
+        direction: "horizontal",
+        lastSwitchTime: Date.now()
+      };
+
+      function moveBot() {
+        const now = Date.now();
+        const switchInterval = 1670; // 10/6分 = 約1670ms
+
+        // 時間が経過したら方向を切り替える
+        if (now - bot.lastSwitchTime > switchInterval) {
+          bot.direction = bot.direction === "horizontal" ? "vertical" : "horizontal";
+          bot.lastSwitchTime = now;
+        }
+
+        // プレイヤーの位置に応じて移動
+        if (bot.direction === "horizontal") {
+          if (player.x < bot.x) {
+            bot.x -= bot.speed;
+          } else if (player.x > bot.x) {
+            bot.x += bot.speed;
+          }
+        } else {
+          if (player.y < bot.y) {
+            bot.y -= bot.speed;
+          } else if (player.y > bot.y) {
+            bot.y += bot.speed;
+          }
+        }
+
+        // 範囲制限
+        bot.x = Math.max(0, Math.min(canvas.width - bot.width, bot.x));
+        bot.y = Math.max(0, Math.min(canvas.height - bot.height, bot.y));
+      }
+
+
+
+
+      function drawBot() {
+        ctx.fillStyle = "#ff0000"; // 赤いボット
+        ctx.fillRect(bot.x, bot.y, bot.width, bot.height);
+      }
+      /* ボットここまで*/
+      /* 爆弾処理 */
+      let bombs = []; // 爆弾は1個だけ（複数にしたいなら配列にする）
+      let entity = false;
+      const MAX_BOMBS = 5;
+
+      document.addEventListener("keydown", (e) => {
+        const key = e.key.toUpperCase();
+        if (["W", "A", "S", "D"].includes(key)) {
+          player.direction = key;
+        } else if (key === "Q") {
+          if(bombs.length < MAX_BOMBS){
+            addItem("nomalbomb", "OK", 5-bombs.length)
+            bombs.push({
+              x: player.x + player.width / 2,
+              y: player.y + player.height / 2,
+              timer: 60, // 60フレーム後に爆発
+              exploded: false,
+              explosionTimer: 30
+            }
+          )}else{
+            addItem("nomalbomb", "NG", 0)
+          }
+        }
+      });
+
+      function updateBombs() {
+        for (let i = bombs.length - 1; i >= 0; i--) {
+          const bomb = bombs[i];
+
+          if (!bomb.exploded) {
+            bomb.timer--;
+            if (bomb.timer <= 0) {
+              bomb.exploded = true;
+              // 爆発エフェクトを出すならここ
+            }
+          } else {
+            bomb.explosionTimer--;
+            if (bomb.explosionTimer <= 0) {
+              // 爆弾を配列から削除
+              bombs.splice(i, 1);
+            }
+          }
+        }
+      }
+
+
+      function drawBombs() {
+        addItem("nomalbomb", "OK", 5-bombs.length)
+        bombs.forEach((bombs) => {
+          console.log("execute drawBombs")
+          if (!bombs.exploded) {
+            console.log("set bombs")
+            ctx.fillStyle = "#888";
+            ctx.beginPath();
+            ctx.arc(bombs.x, bombs.y, 5, 0, Math.PI * 2);
+            ctx.fill();
+          } else {
+            console.log("explode bombs")
+            ctx.fillStyle = "#ffcc00";
+            ctx.fillRect(0, bombs.y - 2, 600, 4); // 横爆風
+            ctx.fillRect(bombs.x - 2, 0, 4, 400); // 縦爆風
+          }
+        });
+      }
+
+      /* 爆弾処理ここまで */
+      /* 当たり判定 */
+      function isHit(entity, area) {
+        return (
+          entity.x < area.x + area.width &&
+          entity.x + entity.width > area.x &&
+          entity.y < area.y + area.height &&
+          entity.y + entity.height > area.y
+        );
+      }
+
+
+      function hitcheck() {
+        bombs.forEach((bombs) => {
+          if (!bombs.exploded) return;
+
+          const explosionArea = {
+            x: 0,
+            y: bombs.y - 2,
+            width: 600,
+            height: 4
+          };
+          const explosionAreaVertical = {
+            x: bombs.x - 2,
+            y: 0,
+            width: 4,
+            height: 400
+          };
+
+          if (isHit(player, explosionArea) || isHit(player, explosionAreaVertical)) {
+            console.log("player Hit");
+          }
+
+          if (isHit(bot, explosionArea) || isHit(bot, explosionAreaVertical)) {
+          console.log("bot Hit");
+          }
+        });
+      }
+
+      /* 当たり判定ここまで */
+      /* インベントリ */
+      function addItem(itemName, stance, itemlength){
+        const newItem = itemName +","+ stance +","+ itemlength;
+
+        const index = inventory.findIndex(item => item.startsWith(itemName + ","));
+
+        if(index !== -1) {
+          inventory[index] = newItem;
+        }else{
+          inventory.push(newItem);
+        }
+        
+        updateInventoryIU();
+      }
+      function updateInventoryIU(){
+        const list = document.getElementById("inventoryList");
+        list.innerHTML = "";
+
+        inventory.forEach((item, icdex) =>{
+          const li = document.createElement("li");
+          li.textContent = item;
+          li.onclick = () => removeItem(index);
+          list.appendChild(li);
+        })
+      }
+      /* インベントリここまで */
+      /* レスポンシブ */
+
+      function isPC() {
+        const ua = navigator.userAgent;
+        return !/Android|iPhone|iPad|iPod|Mobile/i.test(ua);
+      }
+      /* レスポンシブここまで */
+      /* 初動 */
+      function gameLoop() {
+
+        console.log("bombs配列の長さ:", bombs.length)
+        
+        movePlayer();
+        moveBot();    // ボットの移動
+        updateBombs();
+        hitcheck();
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        drawPlayer();
+        drawBot();
+        drawBombs();
+
+        updateInventoryIU();
+
+        requestAnimationFrame(gameLoop);
+      }
+      
+      let PC = isPC();
+
+      addItem("nomalbomb","OK", "5");
+      gameLoop(); // スタート！
+      /* 初動ここまで */
+    </script>
+  </body>
+</html>

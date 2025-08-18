@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <title>Set_ No airea</title>
+    <style>
+      body {
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #222222;
+      }
+
+      canvas {
+        border: 2px solid #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <input type="file" id="imageLoader" accept=".png" style="display:none;">
+    <canvas id="homeCanvas" width="600" height="400"></canvas>
+
+    <script>
+      const input = document.getElementById("imageLoader");
+      const canvas = document.getElementById("homeCanvas");
+      const ctx = canvas.getContext("2d");
+
+      function drawUI() {
+        ctx.fillStyle = "#222";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = "#00ccff";
+        ctx.fillRect(22.5, 15, 40, 40);
+        ctx.fillStyle = "#fff";
+        ctx.font = "24px Arial";
+        ctx.fillText("←", 30, 40);
+
+        ctx.fillStyle = "#00ccff";
+        ctx.fillRect(75, 15, 500, 40);
+        ctx.fillStyle = "#fff";
+        ctx.font = "24px Arial";
+        ctx.fillText("select player texture", 215, 42.5);
+      }
+      const shokiImg = localStorage.getItem("savedImage");
+      if (shokiImg) {
+        const img = new Image();
+        img.onload = function () {
+          drawUI();
+          ctx.drawImage(img, 50, 100, 100, 100);
+        };
+        img.src = shokiImg;
+      } else {
+        drawUI(); // 画像がない場合でもUIは描画する
+      }
+
+      canvas.addEventListener("click", function(e) {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        if (x >= 22.5 && x <= 62.5 && y >= 15 && y <= 55) {
+          window.location.href = "Noairea_home.html";
+        } else if (x >= 75 && x <= 575 && y >= 15 && y <= 55) {
+          imageLoader.click();
+        }
+      });
+
+      input.addEventListener("change", function () {
+        const file = input.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+          const imgDataURL = e.target.result; // ← これが画像ファイルそのもののDataURL
+          localStorage.setItem("savedImage", imgDataURL); // これを保存すればOK！
+
+          const img = new Image();
+          img.onload = function () {
+            drawUI();
+            ctx.drawImage(img, 50, 100, 100, 100);
+          };
+          img.src = imgDataURL;
+        };
+        reader.readAsDataURL(file);
+      });
+    </script>
+  </body>
+</html>
