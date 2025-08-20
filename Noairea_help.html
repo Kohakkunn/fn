@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <title>Home_ No airea</title>
+      <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center; /* 横方向の中央 */
+      align-items: center;     /* 縦方向の中央 */
+      background-color: #222;  /* 背景色（任意） */
+    }
+
+    canvas {
+      border: 2px solid #fff;
+    }
+  </style>
+
+  </head>
+  <body>
+    <canvas id="homeCanvas" width="600" height="400"></canvas>
+    <script>
+      const canvas = document.getElementById("homeCanvas");
+      const ctx = canvas.getContext("2d");
+
+      ctx.fillStyle = "#00ccff";
+      ctx.fillRect(22.5, 15, 40, 40);
+      ctx.fillStyle = "#fff";
+      ctx.font = "24px Arial";
+      ctx.fillText("←", 30, 40);
+
+      if (x >= 22.5 && x <= 62.5 && y >= 15 && y <= 55) {
+          window.location.href = "Noairea_home.html";
+        }
+    </script>
+  </body>
+</html>
