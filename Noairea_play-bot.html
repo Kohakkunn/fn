@@ -364,7 +364,9 @@
         if (!isPC()) {
           // モバイルの場合はタッチ操作
           player.direction = dir;
-          return;
+           if (dir === "Q") {
+             placeBomb();
+          }
         }
       }
       /* レスポンシブここまで */
