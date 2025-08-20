@@ -49,19 +49,26 @@
 
     #touchControls {
       margin-top: 20px;
-     display: flex;
-     flex-direction: column;
+      display: flex;
+      flex-direction: column;
       align-items: center;
     }
 
-    #touchControls button {
-      margin: 5px;
-      padding: 10px 20px;
+    .row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      padding: 15px 20px;
       font-size: 1.2em;
       background-color: #444;
       color: white;
       border: none;
       border-radius: 6px;
+      width: 60px;
+      height: 60px;
     }
     </style>
 
@@ -76,10 +83,21 @@
     </div>
 
     <div id="touchControls">
-      <button onclick="setDirection('W')">↑</button><br>
-      <button onclick="setDirection('A')">←</button>
-      <button onclick="setDirection('S')">↓</button>
-      <button onclick="setDirection('D')">→</button>
+      <div class="row">
+        <button onclick="setDirection('Q')">Q</button>
+        <button onclick="setDirection('W')">W</button>
+        <button onclick="setDirection('E')">E</button>
+      </div>
+      <div class="row">
+        <button onclick="setDirection('A')">A</button>
+        <button onclick="setDirection('S')">S</button>
+        <button onclick="setDirection('D')">D</button>
+      </div>
+      <div class="row">
+        <button onclick="setDirection('Z')">Z</button>
+        <button onclick="setDirection('X')">X</button>
+        <button onclick="setDirection('C')">C</button>
+      </div>
     </div>
 
 
