@@ -365,7 +365,18 @@
           // モバイルの場合はタッチ操作
           player.direction = dir;
            if (dir === "Q") {
-             placeBomb();
+            if(bombs.length < MAX_BOMBS){
+            addItem("nomalbomb", "OK", 5-bombs.length)
+            bombs.push({
+              x: player.x + player.width / 2,
+              y: player.y + player.height / 2,
+              timer: 60, // 60フレーム後に爆発
+              exploded: false,
+              explosionTimer: 30
+            }
+          )}else{
+            addItem("nomalbomb", "NG", 0)
+          }
           }
         }
       }
