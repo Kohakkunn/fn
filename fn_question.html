@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>回答を入力</title>
+</head>
+<body>
+    <h1>x=</h1><textarea id="x"></textarea><h1>,y=</h1><textarea id="y"></textarea><h1>,z=</h1><textarea id="z"></textarea><button id="answer">回答</button>
+    <script>
+        document.getElementById('answer').addEventListener('click', function(){
+            const x = document.getElementById('x').value.trim();
+            const y = document.getElementById('y').value.trim();
+            const z = document.getElementById('z').value.trim();
+            if (x === '2' && y === '7' && z === '1') {
+                window.location.href = 'https://kohakkunn.github.io/fn_true.html';
+            } else {
+                alert('値が正しくありません。');
+            }
+        });
+    </script>
+</body>
+</html>
